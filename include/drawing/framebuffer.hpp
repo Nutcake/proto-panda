@@ -41,7 +41,10 @@ class FrameBuffer{
     private:
         uint16_t sizeX, sizeY;
         uint16_t *pixels;
+        uint16_t *sideBuffer;
         SectionMap<1> view;
+        float offsetX, offsetY;
+        uint64_t lastDrawTime;
 };
 
 extern FrameBuffer g_frameBuffer;
