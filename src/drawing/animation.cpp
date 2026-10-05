@@ -83,6 +83,20 @@ AnimationFrameAction AnimationSequence::Update(uint32_t dt, int m_interruptPin, 
         m_isNew = false;
         return ANIMATION_FRAME_CHANGED;
     }
+
+    if (m_freezeFrame >= 0 && m_frame == m_freezeFrame){
+        if (m_freezeStartTime == 0){
+            m_freezeStartTime = millis();
+            m_freezeDuration = random(m_freezeDurationMin, m_freezeDurationMax);
+            Serial.printf("Freeze frame %d for %d ms\n", m_freezeFrame, m_freezeDuration);
+        }
+        if (millis() - m_freezeStartTime >= m_freezeDuration){
+            m_freezeStartTime = 0;
+            return ChangeFrame();
+        }
+        return ANIMATION_NO_CHANGE;
+    }
+
     if (m_counter <= millis()){
         m_counter = millis()+m_duration;
         if (m_interruptPin < 0){
@@ -586,6 +600,7 @@ void Animation::SetInterruptAnimation(int duration, std::vector<int> frames){
     newSeq.m_frame = 0;
     newSeq.m_repeat = -1;
     newSeq.m_updateMode = 1;
+    newSeq.m_freezeFrame = -1;
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     m_animations.emplace(newSeq);
     xSemaphoreGive(m_mutex);
@@ -607,14 +622,14 @@ void Animation::SetModelAnimation(int animationId, int repeatTimes, bool dropAll
     newSeq.m_isModel = true;
     newSeq.m_repeat = repeatTimes;
     newSeq.m_storageId = externalStorageId;
-
+    newSeq.m_freezeFrame = -1;
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     newSeq.ResetIfNeeded();
     m_animations.emplace(newSeq);
     xSemaphoreGive(m_mutex);
 }
 
-void Animation::SetAnimation( std::vector<int> frames, int duration,int repeatTimes, bool dropAll, int externalStorageId){
+void Animation::SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId){
 
     if (dropAll){
         xSemaphoreTake(m_mutex, portMAX_DELAY);
@@ -633,6 +648,9 @@ void Animation::SetAnimation( std::vector<int> frames, int duration,int repeatTi
     newSeq.m_isNew = true;
     newSeq.m_repeat = repeatTimes;
     newSeq.m_storageId = externalStorageId;
+    newSeq.m_freezeFrame = freezeFrame;
+    newSeq.m_freezeDurationMin = freezeDurationMin;
+    newSeq.m_freezeDurationMax = freezeDurationMax;
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     newSeq.ResetIfNeeded();
     m_animations.emplace(newSeq);

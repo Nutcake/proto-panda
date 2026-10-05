@@ -40,6 +40,11 @@ class AnimationSequence{
         int m_repeat;
         int m_updateMode;
         int m_storageId;
+        int m_freezeFrame;
+        int m_freezeDurationMin;
+        int m_freezeDurationMax;
+        int m_freezeStartTime;
+        int m_freezeDuration;
         bool m_isNew;
         bool m_isModel;
     private:
@@ -56,7 +61,7 @@ class Animation{
 
         void SetModelAnimation(int animationId, int repeatTimes, bool dropAll, int externalStorageId=-1);
 
-        void SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int externalStorageId=-1);
+        void SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId=-1);
         void SetInterruptAnimation(int duration, std::vector<int> frames);
         void SetInterruptPin(int pin){
               if (pin > 0){
