@@ -417,7 +417,7 @@ void Animation::DrawFrame(int i){
         drawFFTOverlay(flipSettings, frameId);
     }
 
-    g_frameBuffer.DrawFrameBuffer(flipSettings, m_shader, m_shaderStrenght);
+    g_frameBuffer.DrawFrameBuffer(flipSettings, m_shader, m_shaderStrenght, m_breathingEnabled);
     Devices::Display->endWrite();
     m_needFlip = true;
     m_frameDrawDuration = micros()-ld;
@@ -482,14 +482,17 @@ bool Animation::clearOverlaySprite(Sprite *s){
 }
 
 bool Animation::PopAnimation(){
-    xSemaphoreTake(m_SpriteMutex, portMAX_DELAY);
+    xSemaphoreTake(m_mutex, portMAX_DELAY);
     if (m_animations.size() > 0){
-        xSemaphoreGive(m_SpriteMutex);
         m_animations.top().ResetIfNeeded();
         m_animations.pop();
+        m_breathingEnabled = m_animations.empty() || m_animations.top().m_breathingEnabled;
+        m_lastBreathingDraw = 0;
+        m_needRedraw = true;
+        xSemaphoreGive(m_mutex);
         return true;
     }else{
-        xSemaphoreGive(m_SpriteMutex);
+        xSemaphoreGive(m_mutex);
         return false;
     }
     
@@ -551,6 +554,7 @@ bool Animation::internalUpdate(uint32_t dt, AnimationSequence &running){
         m_lastFace = running.GetFrameId();
         if (managed){
             DrawFrame(m_lastFace);
+            m_lastBreathingDraw = millis();
         }
         break;
     case ANIMATION_NEED_FLIP:
@@ -560,17 +564,14 @@ bool Animation::internalUpdate(uint32_t dt, AnimationSequence &running){
         }
         break;
     case ANIMATION_NO_CHANGE:
-        if (m_shader != SHADER_NONE || m_fftOverlay || m_forceRedraw){
+        const bool redrawForBreathing = m_breathingEnabled && millis() - m_lastBreathingDraw >= 33;
+        if (m_shader != SHADER_NONE || m_fftOverlay || m_forceRedraw || m_needRedraw || redrawForBreathing){
             m_lastFace = running.GetFrameId();
             if (managed){
                 DrawFrame(m_lastFace);
+                m_lastBreathingDraw = millis();
             }
-        }
-        if (m_needRedraw){
             m_needRedraw = false;
-            if (managed){
-                DrawFrame(m_lastFace);
-            }
         }
         break;
     }
@@ -601,6 +602,7 @@ void Animation::SetInterruptAnimation(int duration, std::vector<int> frames){
     newSeq.m_frame = 0;
     newSeq.m_repeat = -1;
     newSeq.m_updateMode = 1;
+    newSeq.m_breathingEnabled = m_breathingEnabled;
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     m_animations.emplace(newSeq);
     xSemaphoreGive(m_mutex);
@@ -622,6 +624,7 @@ void Animation::SetModelAnimation(int animationId, int repeatTimes, bool dropAll
     newSeq.m_isModel = true;
     newSeq.m_repeat = repeatTimes;
     newSeq.m_storageId = externalStorageId;
+    newSeq.m_breathingEnabled = m_breathingEnabled;
 
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     newSeq.ResetIfNeeded();
@@ -655,6 +658,7 @@ void Animation::SetAnimationWithFreeze(std::vector<int> frames, int duration, in
     newSeq.m_freezeFrame = freezeFrame;
     newSeq.m_freezeDurationMin = max(freezeDurationMin, 0);
     newSeq.m_freezeDurationMax = max(freezeDurationMax, 0);
+    newSeq.m_breathingEnabled = m_breathingEnabled;
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     newSeq.ResetIfNeeded();
     m_animations.emplace(newSeq);

@@ -2,6 +2,7 @@
 #include "tools/devices.hpp"
 #include "tools/oledscreen.hpp"
 #include "drawing/framebuffer.hpp"
+#include "drawing/animation.hpp"
 
 void ModelHandler::RenderModels(std::vector<Model*> mdls){
     
@@ -19,6 +20,6 @@ void ModelHandler::RenderScene(std::vector<Model*> mdls, ShaderType shader, floa
     memset(pixelBitmap, 0,  CANVAS_HEIGHT * (CANVAS_WIDTH/8) * sizeof(uint8_t));
     g_frameBuffer.ClearFrameBuffer();
     RenderModels(mdls);
-    g_frameBuffer.DrawFrameBuffer(FlipConfig::DefaultFlipConfig, shader, shaderStrenght);
+    g_frameBuffer.DrawFrameBuffer(FlipConfig::DefaultFlipConfig, shader, shaderStrenght, g_animation.isBreathingEnabled());
     Devices::Display->endWrite();
 }

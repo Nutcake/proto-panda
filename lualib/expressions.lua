@@ -169,6 +169,9 @@ function _M.Load()
 		}
 		_M.collections[#_M.collections+1] = collection
 		for expression_index, expression_data in ipairs(collection_config.expressions or {}) do
+			if expression_data.breathing == nil and collection_data.breathing ~= nil then
+				expression_data.breathing = collection_data.breathing
+			end
 			local display_name = expression_data.name or ("expression "..expression_index)
 			expression_data.name = prefix..display_name
 			expression_data.display_name = display_name
@@ -322,6 +325,7 @@ function _M.SetExpression(id)
 		-- into a collection image that intentionally has no overlay.
 		local overlays = require("overlays")
 		overlays.disableAllOverlays()
+		setPanelBreathingEnabled(aux.breathing ~= false)
 		local repeats = aux.repeats or -1
 		local allDrop = true
 		local freezeFrame = aux.freeze_frame or -1
@@ -382,6 +386,7 @@ end
 function _M.StackExpression(id)
 	local aux = _M.GetExpression(id)
 	if aux then 
+		setPanelBreathingEnabled(aux.breathing ~= false)
 		local repeats = aux.repeats or -1
 		local freezeFrame = aux.freeze_frame or -1
 		local freezeDurationMin = aux.freeze_duration_min or 0

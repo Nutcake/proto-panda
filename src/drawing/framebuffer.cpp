@@ -41,7 +41,7 @@ static inline uint16_t sampleFrameBuffer(const uint16_t *buffer, int x, int y, i
     return (x < 0 || y < 0 || x >= width || y >= height) ? 0 : buffer[y * width + x];
 }
 
-void FrameBuffer::DrawFrameBuffer(FlipConfig &flipSettings, ShaderType shader, float shaderStrenght){
+void FrameBuffer::DrawFrameBuffer(FlipConfig &flipSettings, ShaderType shader, float shaderStrenght, bool enableBreathing){
     // Apply the shader before the interpolation pass so the idle breathing
     // movement affects the final rendered face, not the source frame cache.
     for (int16_t y = 0; y < sizeY; y++) {
@@ -53,10 +53,12 @@ void FrameBuffer::DrawFrameBuffer(FlipConfig &flipSettings, ShaderType shader, f
         }
     }
 
-    const int offsetXInteger = (int)floorf(offsetX);
-    const int offsetYInteger = (int)floorf(offsetY);
-    const int offsetXFraction = (int)((offsetX - offsetXInteger) * 256.0f + 0.5f);
-    const int offsetYFraction = (int)((offsetY - offsetYInteger) * 256.0f + 0.5f);
+    const float activeOffsetX = enableBreathing ? offsetX : 0.0f;
+    const float activeOffsetY = enableBreathing ? offsetY : 0.0f;
+    const int offsetXInteger = (int)floorf(activeOffsetX);
+    const int offsetYInteger = (int)floorf(activeOffsetY);
+    const int offsetXFraction = (int)((activeOffsetX - offsetXInteger) * 256.0f + 0.5f);
+    const int offsetYFraction = (int)((activeOffsetY - offsetYInteger) * 256.0f + 0.5f);
     const int weightTopLeft = (256 - offsetXFraction) * (256 - offsetYFraction);
     const int weightTopRight = offsetXFraction * (256 - offsetYFraction);
     const int weightBottomLeft = (256 - offsetXFraction) * offsetYFraction;

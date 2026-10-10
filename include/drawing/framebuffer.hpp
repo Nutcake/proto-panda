@@ -10,7 +10,7 @@ class FrameBuffer{
         FrameBuffer():sizeX(0),sizeY(0),pixels(nullptr),sideBuffer(nullptr),offsetX(0.0f),offsetY(0.0f){};
         bool Allocate();    
         void ClearFrameBuffer();
-        void DrawFrameBuffer(FlipConfig &flipSettings, ShaderType shader, float shaderStrenght);
+        void DrawFrameBuffer(FlipConfig &flipSettings, ShaderType shader, float shaderStrenght, bool enableBreathing);
         inline void SetPixel(int x,int y, uint16_t c){
             pixels[x + y * sizeX] = c; 
         };
