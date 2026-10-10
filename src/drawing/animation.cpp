@@ -56,7 +56,7 @@ void AnimationSequence::ResetIfNeeded(){
     }
 }
 
-AnimationFrameAction AnimationSequence::Update(uint32_t dt, int m_interruptPin, bool isManaged, ShaderType &shdr, float &strenght){
+AnimationFrameAction AnimationSequence::Update(uint32_t dt, int m_interruptPin, bool isManaged, ShaderType &shdr, float &strenght, bool randomBlinkEnabled){
     ShaderProcessor::IncrFrame();
     if (m_isModel){
         //Timing is handled here.
@@ -84,7 +84,11 @@ AnimationFrameAction AnimationSequence::Update(uint32_t dt, int m_interruptPin, 
         return ANIMATION_FRAME_CHANGED;
     }
 
-    if (m_freezeFrame >= 0 && m_frame == m_freezeFrame){
+    if (!randomBlinkEnabled){
+        m_freezeStartTime = 0;
+    }
+
+    if (randomBlinkEnabled && m_freezeFrame >= 0 && m_frame == m_freezeFrame){
         if (m_freezeStartTime == 0){
             m_freezeStartTime = millis();
             m_freezeDuration = m_freezeDurationMax > m_freezeDurationMin
@@ -417,7 +421,7 @@ void Animation::DrawFrame(int i){
         drawFFTOverlay(flipSettings, frameId);
     }
 
-    g_frameBuffer.DrawFrameBuffer(flipSettings, m_shader, m_shaderStrenght, m_breathingEnabled);
+    g_frameBuffer.DrawFrameBuffer(flipSettings, m_shader, m_shaderStrenght, isBreathingEnabled());
     Devices::Display->endWrite();
     m_needFlip = true;
     m_frameDrawDuration = micros()-ld;
@@ -546,7 +550,7 @@ void Animation::setManaged(bool v){
 
 bool Animation::internalUpdate(uint32_t dt, AnimationSequence &running){
     bool managed = isManaged();
-    switch (running.Update(dt, m_interruptPin, managed, m_shader, m_shaderStrenght)){
+    switch (running.Update(dt, m_interruptPin, managed, m_shader, m_shaderStrenght, m_randomBlinkEnabled)){
     case ANIMATION_FINISHED:
         return 1;
         break;
@@ -564,7 +568,7 @@ bool Animation::internalUpdate(uint32_t dt, AnimationSequence &running){
         }
         break;
     case ANIMATION_NO_CHANGE:
-        const bool redrawForBreathing = m_breathingEnabled && millis() - m_lastBreathingDraw >= 33;
+        const bool redrawForBreathing = isBreathingEnabled() && millis() - m_lastBreathingDraw >= 33;
         if (m_shader != SHADER_NONE || m_fftOverlay || m_forceRedraw || m_needRedraw || redrawForBreathing){
             m_lastFace = running.GetFrameId();
             if (managed){

@@ -106,6 +106,10 @@ function _M.setup()
     _M.has_boop = (tonumber(dictGet("has_boop")) or 1) == 1
     _M.has_fft_overlay = dictGet("has_fft_overlay") == "1" 
     setFFTOverlay(_M.has_fft_overlay)
+    _M.breathing_enabled = (tonumber(dictGet("enable_breathing")) or 1) == 1
+    setPanelBreathingGloballyEnabled(_M.breathing_enabled)
+    _M.random_blink_enabled = (tonumber(dictGet("enable_random_blink")) or 1) == 1
+    setPanelRandomBlinkEnabled(_M.random_blink_enabled)
     _M.inverted_left_right = dictGet("inverted_left_right") == "1" 
     overlays.enabled = (tonumber(dictGet("enable_overlays")) or 1) == 1 
     _M.reapplyButtons()
@@ -183,6 +187,20 @@ function _M.setup()
         dictSet("enable_overlays", overlays.enabled and "1" or "0")
         dictSave()
     end)
+
+    _M.settings.addElement(function() return "Breathing ["..(_M.breathing_enabled and "ON" or "OFF").."]" end, function()
+        _M.breathing_enabled = not _M.breathing_enabled
+        setPanelBreathingGloballyEnabled(_M.breathing_enabled)
+        dictSet("enable_breathing", _M.breathing_enabled and "1" or "0")
+        dictSave()
+    end)
+
+    _M.settings.addElement(function() return "Random blink ["..(_M.random_blink_enabled and "ON" or "OFF").."]" end, function()
+        _M.random_blink_enabled = not _M.random_blink_enabled
+        setPanelRandomBlinkEnabled(_M.random_blink_enabled)
+        dictSet("enable_random_blink", _M.random_blink_enabled and "1" or "0")
+        dictSave()
+    end)
     
 
     if cfg.fft and cfg.fft.enabled then
@@ -239,13 +257,19 @@ function _M.setup()
         _M.inverted_left_right = false
         _M.brigthness = 64
         _M.led_brightness = 64
+        _M.breathing_enabled = true
+        _M.random_blink_enabled = true
         _M.setDictDefaultValues()
         ledsGentlySeBrightness(_M.led_brightness)
         gentlySetPanelBrightness(_M.brigthness)
         dictSet("inverted_left_right", "0") 
         dictSet("has_fft_overlay", "0")
         dictSet("enable_overlays", "1")
+        dictSet("enable_breathing", "1")
+        dictSet("enable_random_blink", "1")
         dictSet("has_boop", "0")
+        setPanelBreathingGloballyEnabled(true)
+        setPanelRandomBlinkEnabled(true)
         fft.ResetDefaults()
         dictSave()
         _M.reapplyButtons()

@@ -643,6 +643,8 @@ void LuaInterface::RegisterMethods()
   m_lua->FuncRegisterFromObject("setPanelAnimationWithFreeze", &g_animation, &Animation::SetAnimationWithFreeze);
   m_lua->FuncRegisterFromObjectOpt("setPanelModelAnimation", &g_animation, &Animation::SetModelAnimation, -1, false, -1);
   m_lua->FuncRegisterFromObjectOpt("setPanelBreathingEnabled", &g_animation, &Animation::SetBreathingEnabled);
+  m_lua->FuncRegisterFromObjectOpt("setPanelBreathingGloballyEnabled", &g_animation, &Animation::SetBreathingGloballyEnabled);
+  m_lua->FuncRegisterFromObjectOpt("setPanelRandomBlinkEnabled", &g_animation, &Animation::SetRandomBlinkEnabled);
 
   m_lua->FuncRegisterFromObjectOpt("popPanelAnimation", &g_animation, &Animation::PopAnimation);
   m_lua->FuncRegisterFromObjectOpt("setInterruptFrames", &g_animation, &Animation::SetInterruptAnimation);
