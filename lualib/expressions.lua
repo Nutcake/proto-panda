@@ -9,6 +9,7 @@ local _M = {
 	collections = {},
 	count = 0,
 	editbutton_state=0,
+	animationEffectId=0,
 }
 
 local function collectionConfigPath(collection)
@@ -124,8 +125,9 @@ end
 
 function _M.update()
 	local id = getCurrentAnimationStorage()
-	if id ~= 0 then
-		local aux = _M.pendingEnter[id]
+	if id ~= _M.animationEffectId then
+		local aux = _M.animations[id]
+		_M.animationEffectId = id
 		if aux ~= nil then  
 			if aux.onEnter then 
 				aux.onEnter()
@@ -134,7 +136,6 @@ function _M.update()
 				local overlays = require("overlays") 
 				overlays.enableOverlay(aux.overlay)
 			end
-			_M.pendingEnter[id] = nil
 		end
 	end
 end
@@ -298,6 +299,20 @@ function _M.Previous(id)
 end
 
 
+function _M.UpdateOverlayState(enable)
+	local aux = _M.GetExpression(getPanelCurrentFace())
+	if aux then 
+		if aux.overlay then  
+			local overlays = require("overlays") 
+			if enable then
+				overlays.enableOverlay(aux.overlay)
+			else 
+				overlays.disableOverlay(aux.overlay)
+			end
+		end
+	end
+end
+
 function _M.SetExpression(id)
 	local aux = _M.GetExpression(id)
 	if aux then 
@@ -325,6 +340,7 @@ function _M.SetExpression(id)
 		end
 		setPanelManaged(false) --To avoid frame flicker
 		local current_id = aux.id 
+
 		if aux.isModel then  
 			setPanelModelAnimation(aux.modelAnimId, repeats, allDrop, current_id)
 		else
@@ -339,8 +355,6 @@ function _M.SetExpression(id)
 			_M.StackExpression(_M.previousExpression.outro)
 		end
 		setPanelManaged(true)
-
-		_M.pendingEnter[current_id] = aux
 
 		_M.previousExpression = aux
 		return aux

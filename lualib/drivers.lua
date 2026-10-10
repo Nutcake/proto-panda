@@ -1,5 +1,7 @@
 local versions = require("versions")
 
+local DEBUG_INPUT = false
+
 if not MAX_BLE_BUTTONS then
     _G.MAX_BLE_BUTTONS = 8
 end
@@ -78,6 +80,11 @@ function drivers.Start(maxClients)
             left_analog_y = 0,
             right_analog_x = 0,
             right_analog_y = 0,
+
+            stick_x = 0,
+            stick_y = 0,
+            gyro = {x=0,y=0,z=0},
+            accelerometer = {x=0,y=0,z=0},
         }
 
         for __,b in pairs(drivers.JOSYTICK_BUTTONS_MAP) do  
@@ -308,7 +315,9 @@ function drivers.onHidCallback(connectionId, controllerId, data)
     local action = ""
     if len == 2 then  
         --Mouse press
-        log("keyboard.button="..  data[1] .. ' -> '.. data[2])
+        if DEBUG_INPUT then
+            log("keyboard.button="..  data[1] .. ' -> '.. data[2])
+        end
         local keyboard = drivers.keyboard[controllerId]
         keyboard.button = data[1]
     elseif len == 4 or len == 3 then 
@@ -348,13 +357,15 @@ function drivers.onHidCallback(connectionId, controllerId, data)
             end
         end
 
-        if action ~= "" then  
-            log(action)
+        if DEBUG_INPUT then
+            if action ~= "" then  
+                log(action)
+            end
+            if empty then  
+                log("Mouse all zeros.")
+            end
         end
-        if empty then  
-            log("Mouse all zeros.")
-        end
-        
+            
     elseif len == 5 then  
         local str = ""
         for i,b in pairs(data) do  
@@ -389,12 +400,14 @@ function drivers.onHidCallback(connectionId, controllerId, data)
         joystickObject.right_analog_x = data[3] - 127
         joystickObject.right_analog_y = data[4] - 128
         
-        log("Joystick moved: ".. 
-            "  joystickObject.left_hat="..joystickObject.left_hat .. 
-            ", joystickObject.right_hat="..joystickObject.right_hat .. 
-            ", joystickObject.left_analog_x="..joystickObject.left_analog_x..
-            ", joystickObject.left_analog_y="..joystickObject.left_analog_y..
-            ", joystickObject.right_analog_y="..joystickObject.right_analog_y..' '..buttonStates)
+        if DEBUG_INPUT then
+            log("Joystick moved: ".. 
+                "  joystickObject.left_hat="..joystickObject.left_hat .. 
+                ", joystickObject.right_hat="..joystickObject.right_hat .. 
+                ", joystickObject.left_analog_x="..joystickObject.left_analog_x..
+                ", joystickObject.left_analog_y="..joystickObject.left_analog_y..
+                ", joystickObject.right_analog_y="..joystickObject.right_analog_y..' '..buttonStates)
+        end
 
     else 
         
