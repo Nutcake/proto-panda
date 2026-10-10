@@ -7,7 +7,7 @@
 
 class FrameBuffer{
     public:
-        FrameBuffer():sizeX(0),sizeY(0),pixels(nullptr){};
+        FrameBuffer():sizeX(0),sizeY(0),pixels(nullptr),sideBuffer(nullptr),offsetX(0.0f),offsetY(0.0f){};
         bool Allocate();    
         void ClearFrameBuffer();
         void DrawFrameBuffer(FlipConfig &flipSettings, ShaderType shader, float shaderStrenght);
@@ -41,7 +41,9 @@ class FrameBuffer{
     private:
         uint16_t sizeX, sizeY;
         uint16_t *pixels;
+        uint16_t *sideBuffer;
         SectionMap<1> view;
+        float offsetX, offsetY;
 };
 
 extern FrameBuffer g_frameBuffer;

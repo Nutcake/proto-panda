@@ -83,6 +83,21 @@ AnimationFrameAction AnimationSequence::Update(uint32_t dt, int m_interruptPin, 
         m_isNew = false;
         return ANIMATION_FRAME_CHANGED;
     }
+
+    if (m_freezeFrame >= 0 && m_frame == m_freezeFrame){
+        if (m_freezeStartTime == 0){
+            m_freezeStartTime = millis();
+            m_freezeDuration = m_freezeDurationMax > m_freezeDurationMin
+                ? random(m_freezeDurationMin, m_freezeDurationMax)
+                : max(m_freezeDurationMin, 0);
+        }
+        if (millis() - m_freezeStartTime >= m_freezeDuration){
+            m_freezeStartTime = 0;
+            return ChangeFrame();
+        }
+        return ANIMATION_NO_CHANGE;
+    }
+
     if (m_counter <= millis()){
         m_counter = millis()+m_duration;
         if (m_interruptPin < 0){
@@ -614,7 +629,7 @@ void Animation::SetModelAnimation(int animationId, int repeatTimes, bool dropAll
     xSemaphoreGive(m_mutex);
 }
 
-void Animation::SetAnimation( std::vector<int> frames, int duration,int repeatTimes, bool dropAll, int externalStorageId){
+void Animation::SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId){
 
     if (dropAll){
         xSemaphoreTake(m_mutex, portMAX_DELAY);
@@ -633,6 +648,9 @@ void Animation::SetAnimation( std::vector<int> frames, int duration,int repeatTi
     newSeq.m_isNew = true;
     newSeq.m_repeat = repeatTimes;
     newSeq.m_storageId = externalStorageId;
+    newSeq.m_freezeFrame = freezeFrame;
+    newSeq.m_freezeDurationMin = max(freezeDurationMin, 0);
+    newSeq.m_freezeDurationMax = max(freezeDurationMax, 0);
     xSemaphoreTake(m_mutex, portMAX_DELAY);
     newSeq.ResetIfNeeded();
     m_animations.emplace(newSeq);

@@ -29,7 +29,7 @@ extern FrameRepository g_frameRepo;
 
 class AnimationSequence{
     public:
-        AnimationSequence():m_duration(2500),m_frame(0),m_counter(0),m_repeat(-1),m_updateMode(0),m_storageId(-1),m_isNew(true),m_isModel(false){}
+        AnimationSequence():m_duration(2500),m_frame(0),m_counter(0),m_repeat(-1),m_updateMode(0),m_storageId(-1),m_freezeFrame(-1),m_freezeDurationMin(0),m_freezeDurationMax(0),m_freezeStartTime(0),m_freezeDuration(0),m_isNew(true),m_isModel(false){}
         PSRAMVector<int> m_frames;
         AnimationFrameAction Update(uint32_t dt, int m_interruptPin, bool isManaged, ShaderType &shdr, float &strenghy);
         inline int GetFrameId();
@@ -40,6 +40,11 @@ class AnimationSequence{
         int m_repeat;
         int m_updateMode;
         int m_storageId;
+        int m_freezeFrame;
+        int m_freezeDurationMin;
+        int m_freezeDurationMax;
+        uint32_t m_freezeStartTime;
+        uint32_t m_freezeDuration;
         bool m_isNew;
         bool m_isModel;
     private:
@@ -56,7 +61,7 @@ class Animation{
 
         void SetModelAnimation(int animationId, int repeatTimes, bool dropAll, int externalStorageId=-1);
 
-        void SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int externalStorageId=-1);
+        void SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId=-1);
         void SetInterruptAnimation(int duration, std::vector<int> frames);
         void SetInterruptPin(int pin){
               if (pin > 0){

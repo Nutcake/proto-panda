@@ -324,6 +324,9 @@ function _M.SetExpression(id)
 		overlays.disableAllOverlays()
 		local repeats = aux.repeats or -1
 		local allDrop = true
+		local freezeFrame = aux.freeze_frame or -1
+		local freezeDurationMin = aux.freeze_duration_min or 0
+		local freezeDurationMax = aux.freeze_duration_max or 0
 		if aux.transition then 
 			if repeats == -1 then  
 				repeats = 1
@@ -344,7 +347,7 @@ function _M.SetExpression(id)
 		if aux.isModel then  
 			setPanelModelAnimation(aux.modelAnimId, repeats, allDrop, current_id)
 		else
-			setPanelAnimation(aux.animation, aux.duration, repeats, allDrop, current_id)
+			setPanelAnimation(aux.animation, aux.duration, repeats, allDrop, freezeFrame, freezeDurationMin, freezeDurationMax, current_id)
 		end
 
 		if aux.intro then
@@ -378,6 +381,9 @@ function _M.StackExpression(id)
 	local aux = _M.GetExpression(id)
 	if aux then 
 		local repeats = aux.repeats or -1
+		local freezeFrame = aux.freeze_frame or -1
+		local freezeDurationMin = aux.freeze_duration_min or 0
+		local freezeDurationMax = aux.freeze_duration_max or 0
 		if aux.transition then 
 			if repeats == -1 then  
 				repeats = 1
@@ -387,7 +393,7 @@ function _M.StackExpression(id)
 		if aux.isModel then  
 			setPanelModelAnimation(aux.modelAnimId, repeats, false, current_id)
 		else
-			setPanelAnimation(aux.animation, aux.duration, repeats, false, current_id)
+			setPanelAnimation(aux.animation, aux.duration, repeats, false, freezeFrame, freezeDurationMin, freezeDurationMax, current_id)
 		end
 	else
 		log("Unknown ID: "..tostring(id))

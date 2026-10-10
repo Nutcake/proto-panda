@@ -639,7 +639,10 @@ void LuaInterface::RegisterMethods()
   m_lua->FuncRegisterFromObjectOpt("beginFft", &g_fft, &FFT::begin, 16, 2000, 44100, 512, 1);
 
 
-  m_lua->FuncRegisterFromObjectOpt("setPanelAnimation", &g_animation, &Animation::SetAnimation, -1, false, -1, 250);
+  // Optional arguments are supplied from the end of SetAnimation backwards.
+  // This keeps existing Lua scripts (frames, duration, repeats, dropAll, storageId)
+  // working while expressions can opt into freeze-based random blinking.
+  m_lua->FuncRegisterFromObjectOpt("setPanelAnimation", &g_animation, &Animation::SetAnimation, -1, 0, 0, -1, false, -1, 250);
   m_lua->FuncRegisterFromObjectOpt("setPanelModelAnimation", &g_animation, &Animation::SetModelAnimation, -1, false, -1);
 
   m_lua->FuncRegisterFromObjectOpt("popPanelAnimation", &g_animation, &Animation::PopAnimation);
