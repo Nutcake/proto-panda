@@ -61,7 +61,8 @@ class Animation{
 
         void SetModelAnimation(int animationId, int repeatTimes, bool dropAll, int externalStorageId=-1);
 
-        void SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId=-1);
+        void SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int externalStorageId=-1);
+        void SetAnimationWithFreeze(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId=-1);
         void SetInterruptAnimation(int duration, std::vector<int> frames);
         void SetInterruptPin(int pin){
               if (pin > 0){

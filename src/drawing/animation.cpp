@@ -629,7 +629,11 @@ void Animation::SetModelAnimation(int animationId, int repeatTimes, bool dropAll
     xSemaphoreGive(m_mutex);
 }
 
-void Animation::SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId){
+void Animation::SetAnimation(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int externalStorageId){
+    SetAnimationWithFreeze(frames, duration, repeatTimes, dropAll, -1, 0, 0, externalStorageId);
+}
+
+void Animation::SetAnimationWithFreeze(std::vector<int> frames, int duration, int repeatTimes, bool dropAll, int freezeFrame, int freezeDurationMin, int freezeDurationMax, int externalStorageId){
 
     if (dropAll){
         xSemaphoreTake(m_mutex, portMAX_DELAY);

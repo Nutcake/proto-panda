@@ -346,8 +346,10 @@ function _M.SetExpression(id)
 
 		if aux.isModel then  
 			setPanelModelAnimation(aux.modelAnimId, repeats, allDrop, current_id)
+		elseif aux.freeze_frame ~= nil then
+			setPanelAnimationWithFreeze(aux.animation, aux.duration, repeats, allDrop, freezeFrame, freezeDurationMin, freezeDurationMax, current_id)
 		else
-			setPanelAnimation(aux.animation, aux.duration, repeats, allDrop, freezeFrame, freezeDurationMin, freezeDurationMax, current_id)
+			setPanelAnimation(aux.animation, aux.duration, repeats, allDrop, current_id)
 		end
 
 		if aux.intro then
@@ -392,8 +394,10 @@ function _M.StackExpression(id)
 		local current_id = aux.id 
 		if aux.isModel then  
 			setPanelModelAnimation(aux.modelAnimId, repeats, false, current_id)
+		elseif aux.freeze_frame ~= nil then
+			setPanelAnimationWithFreeze(aux.animation, aux.duration, repeats, false, freezeFrame, freezeDurationMin, freezeDurationMax, current_id)
 		else
-			setPanelAnimation(aux.animation, aux.duration, repeats, false, freezeFrame, freezeDurationMin, freezeDurationMax, current_id)
+			setPanelAnimation(aux.animation, aux.duration, repeats, false, current_id)
 		end
 	else
 		log("Unknown ID: "..tostring(id))
